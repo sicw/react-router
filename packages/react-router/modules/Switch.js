@@ -20,6 +20,7 @@ class Switch extends React.Component {
   }
 
   componentWillMount() {
+    // 全局的history
     const { router } = this.context
 
     this.setState({ 
@@ -27,7 +28,8 @@ class Switch extends React.Component {
     })
 
     // Start listening here so we can <Redirect> on the initial render.
-    this.unlisten = this.context.router.listen(() => {
+    // 开始监听变化(history.push forward等), 有变化时更新state
+    this.unlisten = router.listen(() => {
       this.setState({
         location: router.location
       })
@@ -40,15 +42,19 @@ class Switch extends React.Component {
 
   render() {
     const { children } = this.props
+    // 当前选中的标签
     const { location } = this.state
+    // 获取<Switch>下所有的标签
     const routes = React.Children.toArray(children)
 
     let route, match
+    // 这里判断了match == null 只有有一个满足 match就不是空 循环终止
     for (let i = 0, length = routes.length; match == null && i < length; ++i) {
       route = routes[i]
       match = matchPath(location.pathname, route.props.path, route.props)
     }
 
+    // 返回了一个新的Element
     return match ? React.cloneElement(route, { computedMatch: match }) : null
   }
 }
